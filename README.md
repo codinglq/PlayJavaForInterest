@@ -50,3 +50,57 @@
 
 
 20141128
+
+
+###MYSQL数据库连接JDBC版本###
+
+>#####<font color="black">简单的MYSQL连接</font>#####
+
+><font color="black">简单的数据库链接的步骤JDBC</font>
+>1.	<font color="red">加载驱动程序Class.forName(数据库驱动名称)</font><font color="black">不过经过我的测试，这句程序注释掉也不会影响程序运行，因为学过反射，我知道Class.forName(名称)是为了获取一个类类型，是有返回值的，难道在数据库连接时候直接将这个类类型加载到了JVM中的某个神秘的地方了吗？</font>
+>2.	<font color="red">准备连接数据库的URL（统一资源定位符）</font><font color="black">准备一个String类型的url吧！格式：协议：子协议：数据源标识。举例："jdbc:mysql://127.0.0.1:3306/DataBaseName".jdbc就是协议，mysql标识着连接的是mysql数据库，127.0.0.1就是指数据库安装服务器的ipv4地址，3306是mysql的默认端口，DataBaseName就是你的数据库的名字。其实这个URl中可以夹带很多的信息，比如编码格式什么的，这里使用默认，（经过几个小时的google我将自己mysql的中文乱码问题搞定了，其实就是编码改成utf-8就行！）</font>
+>3.	<font color="red">获取连接对象</font><font color="black">谁说程序员没有对象的，程序员最不缺少对象了，他们想有多少个就有多少个！好吧，我来个数据库连接对象！使用DriverManger.getConnection(url，数据库用户名，数据库密码)获取一个对象！数据库用户名就是你要用什么身份连接这个数据库，密码我就不用多少了。返回的类型是Connection的对象。</font>
+>4.	<font color="red">创建一个Statement</font><font color="black">这个Statement是用来搞定一些数据库操作的，执行插入语句，或者升级一组数据什么的，或者是查询一个一组SQL语句的结果啦，总之，没有这个statement就没法完成数据库的操作，我英语不好，还特意查了一下statement的汉语解释——声明，陈述，叙述，报表，清单。这些意思，估计是当做一个报表清单更好一些，我们通过上面创建的数据库连接获取一个报表，使用connention类型对象的.createStatement()返回一个对象是Statement类型的。当然了，这个还有别的类型的statement类型，我就不赘述了。</font>
+>5.	<font color="red">执行sql语句</font><font color="black">连接数据库不就是为了执行sql语句的嘛！，使用statement类型对象的方法——1：executeQuery。2：executeUpdate。3：execute.这三种方法分别对应有查询结果的查询语句，无查询结果的语句，多个结果，或者复杂的语句，什么是有结果的查询？就是这样select * form usr;就是一个有查询结果的语句，对应的返回值是ResultSet类型的，表示这是一个结果集，无查询结果的是什么呢？这样的：insert into user_table (name,id,pwd) values (lq,1,123456)大概就是这一类语句，这样语句的执行结果是这条语句完成后，所影响的记录个数。</font>
+>6.	<font color="red">结果集的使用</font><font color="black">不多说，一段小程序就明白了！</font>
+
+
+>```java
+		//是数据库连接，也就是Connection类型的对象。
+		ResultSet res = db.queryDatabase("select * from the_table");//这个是我写的数据库连接池封装的数据库连接类
+		try {
+		int col = res.getMetaData().getColumnCount() + 1;
+        //下面是循环输出查询结果的程序片段
+		while (res.next()) {
+        //注意，结果集中的列下表是从1开始的，这让我幻想写这个驱动的人是不是程序员～！
+		for (int i = 1; i < col; i++) {
+		System.out.println(res.getString(i) + "\t");
+		}
+		System.out.println();
+		}
+		} catch (Exception e) {
+		e.printStackTrace();
+		}
+		db.closeDataBaseConnection();
+```
+><font color="blue">最后:</font>	<font color="red">关闭相关连接，做好善后工作</font><font color="black">注意关闭顺序是和打开顺序是相反的，这有点像C++中的构造函数和西沟函数的调用顺序啊！1：先关闭ResultSet类型的结果集。2：关闭表单，也就是Statement类型的st。3：最后关闭数据库连接Connection类型的对象，记得吗？</font>
+
+####带着批判的思想看自己的代码####
+><font color="black">写了一个数据库连接的类，里面封装了所有的数据库的属性和配置信息，还封装了查询方法.
+</font>
+>1.	<font color="red">优点：实现了封装，用户代码不必再闹心数据库连接的具体实现了，只要通过构造函数创造出我的这个类的对象就可以玩数据库了！妈妈再也不用担心我的数据库连接不会了。</font>
+>2.	<font color="blue">缺点：这个类的可扩展性简直弱到爆炸啊！你要是向加一个什么方法，比如防止sql注入的检测方法，那么我们就要更新这个类的代码，简直无法直视这样的代码，我写的是什么啊！</font>
+>3.	<font color="black">需要好好设计一下。使劲的抽象数据库连接，得到所有数据库连接都要有的方法，这样就可以把这个抽象出来成为一个接口interface然后抽象数据库连接应该有的属性，抽象成为一个抽象类来表示，abstract class这个类中要包含这个接口，因为抽象类中只包含数据库的属性，而所有的方法都放在了接口中，所以数据库连接的抽象类要包含这个接口，换句话说就是让这个接口的对象变成这个类的一个属性。在这之后，要想创建数据库连接类，就去extends这个抽象类，再用一个类去实现数据库操作的接口，这个具体的数据库实现类的构造函数就要注入接口的具体实现类，从而实现具体的数据库操作，这多亏多台的性质。OMG！</font>
+>4.	<font color="black">使用这个具体的数据库连接类，就可以调用其中统一的方法做数据库的操作，在客户代码不变的情况下，我们想要扩展数据库的操作，只需添加新的接口的实现，并且在新的数据库连接类中注入新的实现接口的类就可以扩展操作，从而不必更改客户代码。</font>
+
+>#####<font color="red">这就是一种策略模式</font>#####
+
+
+><font color="black">使用策略模式+单例+工厂能够制造出可扩展性良好的数据库连接池。</font>
+>1.	<font color="blue">抽象：将数据库连接池进行抽象成为一个工厂，得到要制造的东西最本质的东西，比如数据库的种类，mysql，oracle等。用户，密码。对数据库连接进行抽象，得带我们的工厂想要生产什么样的产品，就是说产品应该具有什么样的功能，什么样的配置。我们生产的是一个数据库连接，那么我们就需要这个连接拥有执行查询语句的功能，就需要有关闭的功能，就需要有获取数据库名称的功能，就需要有查看这个连接状态的功能等。这时候就需要将数据库连接这个产品的功能封装成一个数据库连接功能的一个接口。</font>
+>2.	<font color="green">封装：将这些属性封装成为数据库连接池的类，一个抽象类，将操作数据库的方法封装成一个接口，其中规定了该执行什么样的操作。我们要生产数据库连接，就要有生产的功能，我们需要指导数据库的类型和基本的配置，来指导我们的工厂进行生产。  将连接封装成一个抽象类，里面是不是需要有操作这个连接的方法呢？这就需要一个数据库连接方法接口作为这个数据库连接类的属性，通过策略模式的代码注入，可以方便的扩展功能。</font>
+>3.	<font color="black">这些只是一点点的设想，具体的抽象程度还要看自己想要什么样的工厂，什么样的产拼。</font>
+
+>###<font color="red">个人感想</font>###
+><font color="black">一直以来我都这么认为：不经过实战去谈论的经验都是赵括，不经过实战检验的理论都是不可相信的！</font>
+><font color="red">So I would like checkout!（中国英语）</font>
