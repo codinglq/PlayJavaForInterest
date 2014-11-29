@@ -104,3 +104,4 @@
 >###<font color="red">个人感想</font>###
 ><font color="black">一直以来我都这么认为：不经过实战去谈论的经验都是赵括，不经过实战检验的理论都是不可相信的！</font>
 ><font color="red">So I would like checkout!（中国英语）</font>
+20141129
