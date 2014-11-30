@@ -105,3 +105,67 @@
 ><font color="black">一直以来我都这么认为：不经过实战去谈论的经验都是赵括，不经过实战检验的理论都是不可相信的！</font>
 ><font color="red">So I would like checkout!（中国英语）</font>
 20141129
+
+####java中的参数传递####
+
+><font color="red">在玩java多线程的时候，自己想要用一个线程接收一个对象，然后去对这个对象进行操作。我测试时候传入的是Integer类型的对象，简单的代码如下：</font>
+
+<br>
+
+
+```java
+
+/**
+ * java多线程
+ * 
+ * @author lq
+ *
+ */
+public class ThreadInitial {
+
+	public static void main(String[] args) {
+
+		StringBuffer sb = new StringBuffer("a");
+		ThreadInitial.cat(sb);
+		// 输出sb
+		System.out.println(sb);
+
+		Integer value = new Integer(10);
+		Integer temp = value;
+		System.out.println(value == temp);
+		System.out.println("hash" + value.hashCode());
+		value = 10;
+		System.out.println("hash" + value.hashCode());
+
+		System.out.println(value == temp);
+		System.out.println(value.equals(temp));
+
+		ThreadInitial.add(value);
+		System.out.println(value);
+
+		String str = new String("a");
+		ThreadInitial.cat(str);
+		System.out.println(str);
+	}
+
+	public static void cat(String theStr) {
+		theStr = new String("b");
+	}
+
+	public static void add(Integer theValue) {
+		System.out.println(theValue);
+		theValue = 100;
+	}
+
+	public static void cat(StringBuffer theSb) {
+		theSb.append("b");
+	}
+}
+```
+><font color="black">运行时候发现，如果将一个Integer类型的对象传递到一个函数中，并且对其进行修改，不会对主函数中的对象产生影响。</font>
+
+
+>1.	<font color="black">疑惑产生：我们都知道，java中的参数传递有两种方式：1，值传递。2：引用传递（按照我的理解就是传递对象的指针）。</font>
+>2.	<font color="black">解释:值传递就是传递一些基本类型的参数，比如int，char，double，这些基本类型被当做参数时候，传递的是本身的值。      引用传递：引用传递就是说某个类的对象作为参数时候，在函数调用的时候传递的是这个类的对象的地址，所以，通过这个传递方式就可以在别的函数中根据地址去更改这个对象的属性。但是为什么我的测试用的Integer类型的对象作为参数传入函数中，却没有正确的更改主调函数中的值呢？</font>
+>3.	<font color="black">猜想：在这测试之前，我只知道string类型的对象是不可更改的，每次赋值都是jvm新的开辟的内存，然后指向这个内存区域，如果将string类型的对象赋值成为新的串，那么就是说这个string变量的指向的内存已经改变了，这个可以使用==操作符来判断，所以推测，Integer类型的对象也是不可更改的，每次操作这个对象的时候也是jvm新的开辟出一块内存，并且在这之上做的更改，也就是说原来的变量指向了新的地址，原来的地址若是没有引用了，就被GC给KO了！</font>
+>4.	<font color="red">瞎想：在我看来，java中漫天的指针乱飞，每次new时候都是得到的是一个指针，和c语言不一样的是这个指针使用的".操作符"，而且不用解引。</font>
