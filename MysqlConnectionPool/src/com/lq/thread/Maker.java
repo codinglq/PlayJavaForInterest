@@ -19,6 +19,7 @@ public class Maker extends Thread {
 
 		for (int i = 0; i < 10; i++) {
 			synchronized (theValue) {// 获取这个对象的锁。
+				//模拟生产产品的行为。
 				int temp = (int) (Math.random() * 10000);
 				System.out.println(this.getName() + " 生产者生产的产品：" + temp
 						+ " 当前下标" + theValue.getCurrLocal() + " 操作次数："
