@@ -14,6 +14,7 @@ public class ConnectionPoolInitial {
 		DbConnection dbcon = new DbConnection("127.0.0.1", "3306", "test", "root", "123456");
 		DbConnection.showResult(dbcon.getResultQuery("select * from the_table"));
 		dbcon.closeConnection();
+		System.gc();//神奇的垃圾回收啊！
 		//测试结束
 	}
 
