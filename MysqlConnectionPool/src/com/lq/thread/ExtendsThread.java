@@ -10,34 +10,33 @@ public class ExtendsThread extends Thread {
 
 	private Value theValue = null;
 
-	public ExtendsThread(Value instance) {
-		super("Producter");
+	public ExtendsThread(Value instance, String threadName) {
+		super(threadName);
 		this.theValue = instance;
 	}
 
-	@SuppressWarnings("unused")
 	public void run() {
 
-		for (int i = 0; i < 10; i++) {
-			synchronized (theValue) {
+		// for (int i = 0; i < 10; i++) {
+		// synchronized (theValue) {
+		// System.out.println(this.getName() + " 消费者获取产品："
+		// + theValue.getValue() + " 当前下标"
+		// + theValue.getCurrLocal() + " 操作次数："
+		// + this.theValue.getTimes());
+		// }
+		//
+		// // 这里使用非锁机制同步共享资源，也就是缓冲区。
+		//
+		// }
+		while (true) {
+			if (!theValue.isEmpty()) {
 				System.out.println(this.getName() + " 消费者获取产品："
 						+ theValue.getValue() + " 当前下标"
 						+ theValue.getCurrLocal() + " 操作次数："
 						+ this.theValue.getTimes());
-			}
-
-			//这里使用非锁机制同步共享资源，也就是缓冲区。
-			while (true) {
-
-				if (!theValue.isEmpty()) {
-					System.out.println(this.getName() + " 消费者获取产品："
-							+ theValue.getValue() + " 当前下标"
-							+ theValue.getCurrLocal() + " 操作次数："
-							+ this.theValue.getTimes());
-				} else {
-					//使用非锁机制来同步资源。
-					yield();
-				}
+			} else {
+				// 使用非锁机制来同步资源。
+				yield();
 			}
 		}
 	}

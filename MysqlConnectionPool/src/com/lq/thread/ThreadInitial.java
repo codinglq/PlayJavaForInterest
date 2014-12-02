@@ -12,12 +12,30 @@ public class ThreadInitial {
 
 	public static void main(String[] args) {
 
-		Value theValue = new Value(100000);
-		Thread th1 = new ExtendsThread(theValue);
-		Thread th2 = new Maker(theValue);
+		Value theValue = new Value(10000);
+		Thread th2 = new Maker(theValue);//生产者对象。
+		//下面是消费者。
+		Thread th1 = new ExtendsThread(theValue,"消费者-1");
+		Thread th3 = new ExtendsThread(theValue,"消费者-2");
+		Thread th4 = new ExtendsThread(theValue,"消费者-3");
 
-		th2.start();
+		th2.start();//生产者线程
+		
+		//消费者。
+		th3.start();
 		th1.start();
+		th4.start();
+		
+		try {
+			th4.join();
+		} catch (InterruptedException e3) {
+			e3.printStackTrace();
+		}
+		try {
+			th2.join();
+		} catch (InterruptedException e2) {
+			e2.printStackTrace();
+		}
 
 		try {
 			th1.join();
@@ -25,7 +43,7 @@ public class ThreadInitial {
 			e1.printStackTrace();
 		}
 		try {
-			th2.join();
+			th3.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

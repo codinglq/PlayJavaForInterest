@@ -20,18 +20,21 @@ public class Value {
 
 	// 可以对访问器加上同步 就是加上synchronized关键字，如果其有线程获取锁且正在执行需要同步的代码段时候
 	// 其他线程要想访问数据就会被阻塞。就是说当前对象只有一把锁，被别人拿走了，就无法打开门，只有等待别的线程将这把锁还回来，才能打开门进去修改数据。
-	public void setValue(int in) {
+	public synchronized void setValue(int in) {
 
+		//这个地方有问题.
 		if (this.currLocal < theValue.length && this.currLocal >= 0) {
 			theValue[this.currLocal++] = in;
 			++(this.times);
+		}else{
+			System.out.println("缓冲区满了");
 		}
 	}
 
 	// 消费者获取商品
-	public int getValue() {
-
-		if (this.currLocal <= theValue.length && this.currLocal >= 0) {
+	public synchronized int getValue() {
+		//这个地方也有问题。
+		if (this.currLocal <= theValue.length && this.currLocal > 0) {
 			++(this.times);
 			return theValue[--this.currLocal];
 		}
@@ -47,7 +50,7 @@ public class Value {
 	 * 
 	 * @return
 	 */
-	public boolean isInsted() {
+	public  synchronized boolean isInsted() {
 		return this.currLocal < theValue.length;
 	}
 
@@ -56,15 +59,15 @@ public class Value {
 	 * 
 	 * @return
 	 */
-	public boolean isEmpty() {
-		return this.currLocal == 0;
+	public  synchronized boolean isEmpty() {
+		return this.currLocal < 0;
 	}
 	
 	/**
 	 * 获取当前下标。
 	 * @return
 	 */
-	public int getCurrLocal()
+	public synchronized int getCurrLocal()
 	{
 		return this.currLocal;
 	}
@@ -72,7 +75,7 @@ public class Value {
 	/**
 	 * 查看操作次数。
 	 */
-	public int getTimes()
+	public synchronized int getTimes()
 	{
 		return this.times;
 	}
