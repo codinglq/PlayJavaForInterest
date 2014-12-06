@@ -36,7 +36,8 @@ public class ProduceBuffer {
 		if (this.length > this.currLocal.get()) {
 			while (true) {
 				int oldValue = this.currLocal.get();
-				if (this.currLocal.compareAndSet(oldValue, oldValue)) {
+				if (this.currLocal.compareAndSet(oldValue, oldValue)) {//这句话只能保证CAS是原子操作，但是无法保证下面这个也是原子操作啊。
+					//而且cas的源代码也不让看到。
 					this.value.getAndSet(currLocal.getAndIncrement(), theValue);
 					return;
 				}

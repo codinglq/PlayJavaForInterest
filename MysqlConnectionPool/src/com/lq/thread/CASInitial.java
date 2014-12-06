@@ -1,6 +1,7 @@
 package com.lq.thread;
 /**
  * 使用CAS的多线程测试，能不用锁就不用锁，使用原子操作。
+ * 比起使用锁，使用CAS机制，速度不是一般的提升。
  * @author lq
  *
  */
